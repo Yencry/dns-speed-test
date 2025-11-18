@@ -1,0 +1,14 @@
+D:\project\website\dns-wasm\target\wasm32-unknown-unknown\release\deps\serde-69e76547d0e03efb.d: C:\Users\wyk\.cargo\registry\src\index.crates.io-1949cf8c6b5b557f\serde-1.0.228\src\lib.rs C:\Users\wyk\.cargo\registry\src\index.crates.io-1949cf8c6b5b557f\serde-1.0.228\src\integer128.rs C:\Users\wyk\.cargo\registry\src\index.crates.io-1949cf8c6b5b557f\serde-1.0.228\src\private\mod.rs C:\Users\wyk\.cargo\registry\src\index.crates.io-1949cf8c6b5b557f\serde-1.0.228\src\private\de.rs C:\Users\wyk\.cargo\registry\src\index.crates.io-1949cf8c6b5b557f\serde-1.0.228\src\private\ser.rs D:\project\website\dns-wasm\target\wasm32-unknown-unknown\release\build\serde-3d878517d2d5e482\out/private.rs
+
+D:\project\website\dns-wasm\target\wasm32-unknown-unknown\release\deps\libserde-69e76547d0e03efb.rlib: C:\Users\wyk\.cargo\registry\src\index.crates.io-1949cf8c6b5b557f\serde-1.0.228\src\lib.rs C:\Users\wyk\.cargo\registry\src\index.crates.io-1949cf8c6b5b557f\serde-1.0.228\src\integer128.rs C:\Users\wyk\.cargo\registry\src\index.crates.io-1949cf8c6b5b557f\serde-1.0.228\src\private\mod.rs C:\Users\wyk\.cargo\registry\src\index.crates.io-1949cf8c6b5b557f\serde-1.0.228\src\private\de.rs C:\Users\wyk\.cargo\registry\src\index.crates.io-1949cf8c6b5b557f\serde-1.0.228\src\private\ser.rs D:\project\website\dns-wasm\target\wasm32-unknown-unknown\release\build\serde-3d878517d2d5e482\out/private.rs
+
+D:\project\website\dns-wasm\target\wasm32-unknown-unknown\release\deps\libserde-69e76547d0e03efb.rmeta: C:\Users\wyk\.cargo\registry\src\index.crates.io-1949cf8c6b5b557f\serde-1.0.228\src\lib.rs C:\Users\wyk\.cargo\registry\src\index.crates.io-1949cf8c6b5b557f\serde-1.0.228\src\integer128.rs C:\Users\wyk\.cargo\registry\src\index.crates.io-1949cf8c6b5b557f\serde-1.0.228\src\private\mod.rs C:\Users\wyk\.cargo\registry\src\index.crates.io-1949cf8c6b5b557f\serde-1.0.228\src\private\de.rs C:\Users\wyk\.cargo\registry\src\index.crates.io-1949cf8c6b5b557f\serde-1.0.228\src\private\ser.rs D:\project\website\dns-wasm\target\wasm32-unknown-unknown\release\build\serde-3d878517d2d5e482\out/private.rs
+
+C:\Users\wyk\.cargo\registry\src\index.crates.io-1949cf8c6b5b557f\serde-1.0.228\src\lib.rs:
+C:\Users\wyk\.cargo\registry\src\index.crates.io-1949cf8c6b5b557f\serde-1.0.228\src\integer128.rs:
+C:\Users\wyk\.cargo\registry\src\index.crates.io-1949cf8c6b5b557f\serde-1.0.228\src\private\mod.rs:
+C:\Users\wyk\.cargo\registry\src\index.crates.io-1949cf8c6b5b557f\serde-1.0.228\src\private\de.rs:
+C:\Users\wyk\.cargo\registry\src\index.crates.io-1949cf8c6b5b557f\serde-1.0.228\src\private\ser.rs:
+D:\project\website\dns-wasm\target\wasm32-unknown-unknown\release\build\serde-3d878517d2d5e482\out/private.rs:
+
+# env-dep:OUT_DIR=D:\\project\\website\\dns-wasm\\target\\wasm32-unknown-unknown\\release\\build\\serde-3d878517d2d5e482\\out

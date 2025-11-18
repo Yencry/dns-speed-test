@@ -1,0 +1,96 @@
+@tailwind base;
+@tailwind components;
+@tailwind utilities;
+
+@layer base {
+  html {
+    @apply bg-gray-100 dark:bg-gray-900;
+  }
+  
+  body {
+    @apply text-gray-800 dark:text-gray-200;
+    font-family: 'Inter', ui-sans-serif, system-ui, -apple-system, 'Segoe UI', Roboto, Helvetica, Arial, 'Apple Color Emoji', 'Segoe UI Emoji';
+    background-image:
+      radial-gradient(circle at 1px 1px, rgba(0, 0, 0, 0.035) 1px, transparent 0),
+      radial-gradient(circle at 3px 3px, rgba(0, 0, 0, 0.02) 1px, transparent 0),
+      url("../wallpaper/[SweetSub] Shoushimin Series - 01 [WebRip][1080P][AVC 8bit][CHS].mp4 @0.00.20 -17962765.PNG");
+    background-size: 24px 24px, 24px 24px, cover;
+    background-position: 0 0, 12px 12px, center;
+    background-repeat: repeat, repeat, no-repeat;
+    background-attachment: scroll, scroll, fixed;
+  }
+  
+  .dark body {
+    background-image:
+      radial-gradient(circle at 1px 1px, rgba(255, 255, 255, 0.05) 1px, transparent 0),
+      radial-gradient(circle at 3px 3px, rgba(255, 255, 255, 0.03) 1px, transparent 0),
+      url("../wallpaper/[SweetSub] Shoushimin Series - 01 [WebRip][1080P][AVC 8bit][CHS].mp4 @0.00.20 -17962765.PNG");
+    background-size: 24px 24px, 24px 24px, cover;
+    background-position: 0 0, 12px 12px, center;
+    background-repeat: repeat, repeat, no-repeat;
+    background-attachment: scroll, scroll, fixed;
+  }
+}
+
+@layer components {
+  .title-from-wallpaper {
+    background-image:
+      radial-gradient(circle at 1px 1px, rgba(0, 0, 0, 0.035) 1px, transparent 0),
+      radial-gradient(circle at 3px 3px, rgba(0, 0, 0, 0.02) 1px, transparent 0),
+      url("../wallpaper/[SweetSub] Shoushimin Series - 01 [WebRip][1080P][AVC 8bit][CHS].mp4 @0.00.20 -17962765.PNG");
+    background-size: 24px 24px, 24px 24px, cover;
+    background-position: 0 0, 12px 12px, center;
+    background-repeat: repeat, repeat, no-repeat;
+    background-attachment: scroll, scroll, fixed;
+    -webkit-background-clip: text;
+    background-clip: text;
+    color: transparent;
+    -webkit-text-stroke: 0.22px rgba(248, 250, 252, 0.35);
+    text-stroke: 0.22px rgba(248, 250, 252, 0.35);
+  }
+}
+
+/* 加载动画 */
+@keyframes dot-blink {
+  0%, 100% {
+    opacity: 0;
+  }
+  50% {
+    opacity: 1;
+  }
+}
+
+.spinner {
+  display: inline-block;
+  position: relative;
+  width: 70px;
+  height: 70px;
+  vertical-align: middle;
+}
+
+.dot {
+  position: absolute;
+  width: 10px;
+  height: 10px;
+  background-color: #3498db;
+  border-radius: 50%;
+  animation: dot-blink 2s linear infinite;
+}
+
+.dot-1 {
+  left: 30%;
+  top: 50%;
+  animation-delay: -1.6s;
+}
+
+.dot-2 {
+  left: 50%;
+  top: 30%;
+  animation-delay: -0.8s;
+}
+
+.dot-3 {
+  left: 70%;
+  top: 50%;
+  animation-delay: 0s;
+}
