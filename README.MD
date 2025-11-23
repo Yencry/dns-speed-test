@@ -45,5 +45,3 @@
 - **AI**
   - `openai`, `chatgpt`, `claude`, `深度求索`, `kimi`,
     `豆包`, `ciciai`, `grok`
-
----
