@@ -1,4 +1,4 @@
-# dnsSpeedTest
+# Dns Speed Test
 
 纯前端 DNS 延迟测试工具。在本地浏览器中直接对各个 DNS over HTTPS (DoH)端点测速，帮助你选择更快、更稳定的解析服务。
 
