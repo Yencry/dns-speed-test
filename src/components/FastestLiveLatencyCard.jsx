@@ -6,11 +6,13 @@ import {
   PointElement,
   LineElement,
   Tooltip,
-  Legend
+  Legend,
+  Filler
 } from 'chart.js';
 import { Line } from 'react-chartjs-2';
 import { sampleFastestServerLatencyWasm } from '../services/dnsEngineWasm';
 import { LIVE_SAMPLE_INTERVAL_MS, LIVE_MAX_POINTS } from '../config/constants';
+import { Activity, Play, Pause } from 'lucide-react';
 
 ChartJS.register(
   CategoryScale,
@@ -18,48 +20,38 @@ ChartJS.register(
   PointElement,
   LineElement,
   Tooltip,
-  Legend
+  Legend,
+  Filler
 );
 
 const SAMPLE_INTERVAL_MS = LIVE_SAMPLE_INTERVAL_MS;
 const MAX_POINTS = LIVE_MAX_POINTS;
 
-export default function FastestLiveLatencyCard({ server, serversPool, onBestServerChange, onRunningChange }) {
+export default function FastestLiveLatencyCard({ server, serversPool, onBestServerChange, onRunningChange, forceDisabled }) {
   const [isRunning, setIsRunning] = useState(false);
   const [samples, setSamples] = useState([]); // { t: seconds, latency: number | null }
-  const [displayServer, setDisplayServer] = useState(server || null); // 当前展示为“最快”的服务器
+  const [displayServer, setDisplayServer] = useState(server || null);
   const sampleCounterRef = useRef(0);
 
-  // 当候选服务器列表或初始服务器变化时，重置采样数据
-  // 注意：不要把回调函数放进依赖，否则每次渲染都会触发重置
   useEffect(() => {
     setSamples([]);
     sampleCounterRef.current = 0;
     setIsRunning(false);
     setDisplayServer(server || null);
-    if (onRunningChange) {
-      onRunningChange(false);
-    }
-    if (onBestServerChange) {
-      onBestServerChange(null);
-    }
+    if (onRunningChange) onRunningChange(false);
+    if (onBestServerChange) onBestServerChange(null);
   }, [server?.name, server?.url, serversPool]);
 
   useEffect(() => {
-    const pool = (serversPool && serversPool.length > 0)
-      ? serversPool
-      : (server ? [server] : []);
+    const pool = (serversPool && serversPool.length > 0) ? serversPool : (server ? [server] : []);
 
-    if (!isRunning || pool.length === 0) {
-      return;
-    }
+    if (!isRunning || pool.length === 0) return;
 
     let cancelled = false;
 
     async function runSample() {
       if (cancelled) return;
 
-      // 同一时间对多个候选 DOH 端点进行采样，选出当前最快的一条
       const latencies = await Promise.all(
         pool.map(s => sampleFastestServerLatencyWasm(s))
       );
@@ -78,20 +70,15 @@ export default function FastestLiveLatencyCard({ server, serversPool, onBestServ
       sampleCounterRef.current += 1;
       const elapsedSeconds = (sampleCounterRef.current * SAMPLE_INTERVAL_MS) / 1000;
 
-      if (bestServer) {
-        setDisplayServer(bestServer);
-      }
+      if (bestServer) setDisplayServer(bestServer);
 
       setSamples(prev => {
         const next = [...prev, { t: elapsedSeconds, latency: bestLatency }];
-        if (next.length > MAX_POINTS) {
-          next.shift();
-        }
+        if (next.length > MAX_POINTS) next.shift();
         return next;
       });
     }
 
-    // 立即采样一次，再按固定间隔持续采样
     runSample();
     const id = setInterval(runSample, SAMPLE_INTERVAL_MS);
 
@@ -107,13 +94,7 @@ export default function FastestLiveLatencyCard({ server, serversPool, onBestServ
       .filter(v => v != null);
 
     if (numeric.length === 0) {
-      return {
-        latest: null,
-        min: null,
-        max: null,
-        avg: null,
-        median: null,
-      };
+      return { latest: null, min: null, max: null, avg: null, median: null };
     }
 
     const latest = numeric[numeric.length - 1];
@@ -123,10 +104,7 @@ export default function FastestLiveLatencyCard({ server, serversPool, onBestServ
     const sum = sorted.reduce((acc, v) => acc + v, 0);
     const avg = sum / sorted.length;
     const mid = Math.floor(sorted.length / 2);
-    const median =
-      sorted.length % 2 === 0
-        ? (sorted[mid - 1] + sorted[mid]) / 2
-        : sorted[mid];
+    const median = sorted.length % 2 === 0 ? (sorted[mid - 1] + sorted[mid]) / 2 : sorted[mid];
 
     return { latest, min, max, avg, median };
   }, [samples]);
@@ -151,22 +129,21 @@ export default function FastestLiveLatencyCard({ server, serversPool, onBestServ
       labels: samples.map(s => `${Math.round(s.t)}s`),
       datasets: [
         {
-          label: 'RTT (ms)',
+          label: '延迟 (ms)',
           data: samples.map(s => (typeof s.latency === 'number' ? s.latency : null)),
-          borderColor: '#f97316',
+          borderColor: '#38bdf8', // Sky 400
           backgroundColor: (ctx) => {
             const { chart } = ctx;
             const { ctx: canvasCtx, chartArea } = chart || {};
-            if (!chartArea) {
-              return 'rgba(249,115,22,0.12)';
-            }
+            if (!chartArea) return 'rgba(56, 189, 248, 0.1)';
             const gradient = canvasCtx.createLinearGradient(0, chartArea.top, 0, chartArea.bottom);
-            gradient.addColorStop(0, 'rgba(249,115,22,0.35)');
-            gradient.addColorStop(1, 'rgba(249,115,22,0.02)');
+            gradient.addColorStop(0, 'rgba(56, 189, 248, 0.4)');
+            gradient.addColorStop(1, 'rgba(56, 189, 248, 0.0)');
             return gradient;
           },
           pointRadius: 0,
-          pointHoverRadius: 2,
+          pointHoverRadius: 4,
+          pointHoverBackgroundColor: '#fff',
           tension: 0.4,
           borderWidth: 2,
           fill: true,
@@ -178,166 +155,107 @@ export default function FastestLiveLatencyCard({ server, serversPool, onBestServ
   const chartOptions = useMemo(() => ({
     responsive: true,
     maintainAspectRatio: false,
-    animation: {
-      duration: 300,
-      easing: 'easeOutQuad',
-    },
-    layout: {
-      padding: {
-        top: 6,
-        right: 8,
-        bottom: 2,
-        left: 0,
-      },
-    },
+    animation: { duration: 0 }, // Disable animation for real-time feel
     plugins: {
-      legend: {
-        display: false,
-      },
+      legend: { display: false },
       tooltip: {
         mode: 'index',
         intersect: false,
-        backgroundColor: 'rgba(15,23,42,0.9)',
-        titleColor: '#e5e7eb',
-        bodyColor: '#e5e7eb',
-        borderColor: 'rgba(148,163,184,0.4)',
+        backgroundColor: 'rgba(0,0,0,0.8)',
+        titleColor: '#fff',
+        bodyColor: '#fff',
+        borderColor: 'rgba(255,255,255,0.1)',
         borderWidth: 1,
         padding: 8,
         displayColors: false,
         callbacks: {
           label: (ctx) => {
             const v = ctx.parsed.y;
-            if (v == null || Number.isNaN(v)) return '超时/失败';
-            return `${v.toFixed(1)} ms`;
+            return v == null ? '超时' : `${v.toFixed(1)} ms`;
           },
         },
       },
     },
     scales: {
-      x: {
-        grid: {
-          display: false,
-        },
-        ticks: {
-          maxTicksLimit: 8,
-          color: '#6b7280',
-          font: { size: 10 },
-        },
-      },
+      x: { display: false },
       y: {
         beginAtZero: true,
-        grid: {
-          color: 'rgba(148,163,184,0.18)',
-          borderDash: [3, 3],
-        },
-        ticks: {
-          color: '#6b7280',
-          font: { size: 10 },
-          maxTicksLimit: 6,
-          callback: (value) => `${value} ms`,
-        },
+        grid: { color: 'rgba(255,255,255,0.05)' },
+        ticks: { color: '#94a3b8', font: { size: 10 }, maxTicksLimit: 5 },
       },
     },
-    spanGaps: true,
+    interaction: {
+      mode: 'nearest',
+      axis: 'x',
+      intersect: false
+    }
   }), []);
 
-  const disabled = !server && !(serversPool && serversPool.length);
+  const disabled = forceDisabled || (!server && !(serversPool && serversPool.length));
 
   const handleToggle = () => {
     if (disabled) return;
     setIsRunning(prev => {
       const next = !prev;
-      if (onRunningChange) {
-        onRunningChange(next);
-      }
-      if (!next && onBestServerChange) {
-        onBestServerChange(null);
-      }
+      if (onRunningChange) onRunningChange(next);
+      if (!next && onBestServerChange) onBestServerChange(null);
       return next;
     });
   };
 
   return (
-    <section className="relative overflow-hidden rounded-xl border border-white/30 dark:border-slate-700/60 bg-black/35 dark:bg-black/60 shadow-[0_14px_35px_rgba(15,23,42,0.55)] px-4 md:px-6 py-4 md:py-5">
-      <div className="flex flex-col md:flex-row gap-4 md:gap-6">
-        <div className="flex-1 min-w-0">
-          <div className="mb-1">
-            <h2 className="text-sm font-semibold text-slate-50">最佳 DNS 实时延迟</h2>
-            {displayServer && (
-              <div className="mt-0.5 text-[11px] truncate text-sky-100/90">
-                当前最快：{displayServer.name}
-              </div>
-            )}
+    <div className="glass-panel p-6 flex flex-col h-full">
+      <div className="flex items-center justify-between mb-4">
+        <div>
+          <div className="flex items-center gap-2">
+            <Activity size={18} className="text-sky-400" />
+            <h3 className="text-lg font-semibold text-white">实时延迟监控</h3>
           </div>
-
-          <div className="flex items-baseline gap-2 mt-2">
-            <span className="text-2xl md:text-3xl font-semibold text-white">
-              {metrics.latest != null ? metrics.latest.toFixed(1) : '--'}
-            </span>
-            <span className="text-xs text-sky-100/90">ms</span>
-            {isRunning && (
-              <span className="ml-2 inline-flex items-center px-2 py-0.5 rounded-full bg-emerald-500/10 text-[11px] text-emerald-100 border border-emerald-400/70">
-                实时测量中
-              </span>
-            )}
-          </div>
-
-          <div className="mt-2 flex flex-wrap gap-4 text-[11px] text-sky-100/80">
-            <div>
-              <div className="text-sky-100/85">平均</div>
-              <div className="text-white font-medium">
-                {metrics.avg != null ? `${metrics.avg.toFixed(1)} ms` : '--'}
-              </div>
-            </div>
-            <div>
-              <div className="text-sky-100/85">最快</div>
-              <div className="text-white font-medium">
-                {metrics.min != null ? `${metrics.min.toFixed(1)} ms` : '--'}
-              </div>
-            </div>
-            <div>
-              <div className="text-sky-100/85">最慢</div>
-              <div className="text-white font-medium">
-                {metrics.max != null ? `${metrics.max.toFixed(1)} ms` : '--'}
-              </div>
-            </div>
-            <div>
-              <div className="text-sky-100/85">采样点</div>
-              <div className="text-white font-medium">{samples.length}</div>
-            </div>
-          </div>
-
-          <div className="mt-3 flex items-center gap-2">
-            <button
-              type="button"
-              onClick={handleToggle}
-              disabled={disabled}
-              className="inline-flex items-center justify-center px-3.5 py-1.5 rounded-full border border-white/60 dark:border-slate-700/80 bg-white/22 dark:bg-slate-900/55 text-[11px] font-medium text-slate-900 dark:text-slate-50 shadow-lg hover:bg-white/40 dark:hover:bg-slate-900/80 disabled:bg-white/10 disabled:dark:bg-slate-900/35 disabled:text-slate-400 disabled:dark:text-slate-500 disabled:border-slate-300/60 disabled:dark:border-slate-700/60 disabled:cursor-not-allowed transition-colors focus:outline-none focus-visible:ring-2 focus-visible:ring-sky-400/70"
-            >
-              {isRunning ? (
-                <span className="title-from-wallpaper">暂停持续测速</span>
-              ) : (
-                <span className="title-from-wallpaper">开始持续测速</span>
-              )}
-            </button>
-            {!displayServer && (
-              <span className="text-[11px] text-sky-100/80">
-                先运行一次上方的 DNS 测试以选出可用的 DNS 服务器。
-              </span>
-            )}
-          </div>
-        </div>
-
-        <div className="w-full md:w-2/3 h-36 md:h-44 rounded-lg bg-white/8 dark:bg-slate-900/35 border border-white/25 dark:border-slate-700/60 shadow-inner px-2 py-1 backdrop-blur-lg">
-          {chartData ? (
-            <Line data={chartData} options={chartOptions} />
-          ) : (
-            <div className="w-full h-full flex items-center justify-center text-[11px] text-sky-100/80 border border-dashed border-gray-200/60 dark:border-slate-700/70 rounded-md">
-              {server ? '点击“开始持续测速”以查看实时曲线。' : '等待上方测试选出最佳 DNS 服务器。'}
-            </div>
+          {displayServer && (
+            <p className="text-xs text-slate-400 mt-1">
+              正在监控: <span className="text-sky-300">{displayServer.name}</span>
+            </p>
           )}
         </div>
+        <button
+          onClick={handleToggle}
+          disabled={disabled}
+          className={`p-3 rounded-full transition-all duration-300 ${isRunning
+            ? 'bg-amber-500/20 text-amber-400 hover:bg-amber-500/30'
+            : 'bg-sky-500/20 text-sky-400 hover:bg-sky-500/30'
+            } disabled:opacity-50 disabled:cursor-not-allowed`}
+        >
+          {isRunning ? <Pause size={20} fill="currentColor" /> : <Play size={20} fill="currentColor" />}
+        </button>
       </div>
-    </section>
+
+      <div className="flex-1 min-h-[180px] bg-black/20 rounded-xl border border-white/5 p-4 mb-4 relative">
+        {chartData ? (
+          <Line data={chartData} options={chartOptions} />
+        ) : (
+          <div className="absolute inset-0 flex items-center justify-center text-slate-500 text-sm">
+            {server ? '点击播放按钮开始监控' : '请先运行一次测速'}
+          </div>
+        )}
+      </div>
+
+      <div className="grid grid-cols-4 gap-2">
+        <StatCompact label="最新" value={metrics.latest} />
+        <StatCompact label="平均" value={metrics.avg} />
+        <StatCompact label="最小" value={metrics.min} color="text-emerald-400" />
+        <StatCompact label="最大" value={metrics.max} color="text-rose-400" />
+      </div>
+    </div>
+  );
+}
+
+function StatCompact({ label, value, color = "text-white" }) {
+  return (
+    <div className="bg-white/5 rounded-lg p-2 text-center border border-white/5">
+      <div className="text-[10px] text-slate-400 uppercase tracking-wider mb-0.5">{label}</div>
+      <div className={`text-sm font-bold ${color}`}>
+        {value != null ? value.toFixed(0) : '--'}
+      </div>
+    </div>
   );
 }
